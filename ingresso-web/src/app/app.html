@@ -1,0 +1,25 @@
+<a class="skip-link" href="#main" (click)="$event.preventDefault(); mainContent.focus()"
+  >Pular para o conteúdo</a
+>
+<header class="site-header">
+  <a class="brand" routerLink="/" aria-label="Ingresso, início"
+    ><span class="brand-icon" aria-hidden="true">i</span> ingresso<span class="brand-dot"
+      >.</span
+    ></a
+  >
+  <span class="header-label">SEU PRÓXIMO MOMENTO COMEÇA AQUI</span>
+  @if (auth.session()) {
+    <button class="button-quiet" (click)="logout()">
+      Sair da conta <span aria-hidden="true">↗</span>
+    </button>
+  } @else {
+    <a class="button-quiet" routerLink="/cadastro"
+      >Criar uma conta <span aria-hidden="true">↗</span></a
+    >
+  }
+</header>
+<main id="main" #mainContent tabindex="-1"><router-outlet /></main>
+<footer class="site-footer">
+  <span>ingresso. <span class="footer-detail">Conecte-se a novas experiências.</span></span
+  ><span>Feito para bons momentos <span aria-hidden="true">✳</span></span>
+</footer>
