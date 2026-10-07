@@ -62,7 +62,6 @@ describe('Autenticação e integração HTTP', () => {
       nome: 'Ana',
       email: 'ana@exemplo.com',
       password: 'senha',
-      perfil: 'USER' as const,
     };
     const result = firstValueFrom(auth.register(user));
     const request = http.expectOne('/api/usuarios');
@@ -96,14 +95,19 @@ describe('Autenticação e integração HTTP', () => {
     const request = http.expectOne('/api/recurso-futuro');
     expect(request.request.headers.get('Authorization')).toBe(`Bearer ${jwt}`);
     request.flush({});
-    for (const url of ['https://externo.example/api', '/api-outro/recurso']) {
+    for (const url of [
+      'https://externo.example/api',
+      '/api-outro/recurso',
+      '/api/eventos',
+      '/api/eventos/41',
+    ]) {
       client.get(url).subscribe();
       const external = http.expectOne(url);
       expect(external.request.headers.has('Authorization')).toBe(false);
       external.flush({});
     }
     auth
-      .register({ nome: 'Ana', email: 'ana@exemplo.com', password: 'senha', perfil: 'USER' })
+      .register({ nome: 'Ana', email: 'ana@exemplo.com', password: 'senha' })
       .subscribe();
     const publicRequest = http.expectOne('/api/usuarios');
     expect(publicRequest.request.headers.has('Authorization')).toBe(false);

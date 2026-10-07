@@ -2,21 +2,25 @@
   >Pular para o conteúdo</a
 >
 <header class="site-header">
-  <a class="brand" routerLink="/" aria-label="Ingresso, início"
+  <a class="brand" routerLink="/eventos" aria-label="Ingresso, eventos"
     ><span class="brand-icon" aria-hidden="true">i</span> ingresso<span class="brand-dot"
       >.</span
     ></a
   >
   <span class="header-label">SEU PRÓXIMO MOMENTO COMEÇA AQUI</span>
-  @if (auth.session()) {
-    <button class="button-quiet" (click)="logout()">
-      Sair da conta <span aria-hidden="true">↗</span>
-    </button>
-  } @else {
-    <a class="button-quiet" routerLink="/cadastro"
-      >Criar uma conta <span aria-hidden="true">↗</span></a
-    >
-  }
+  <nav class="site-nav" aria-label="Navegação principal">
+    <a routerLink="/eventos">Eventos</a>
+    @if (auth.session()) {
+      <a routerLink="/produtor/eventos">Minha produção</a>
+      <a routerLink="/admin/eventos">Admin</a>
+      <a routerLink="/pedidos">Meus pedidos</a>
+      <a routerLink="/conta">Conta</a>
+      <button class="button-quiet" (click)="logout()">Sair <span aria-hidden="true">↗</span></button>
+    } @else {
+      <a routerLink="/entrar">Entrar</a>
+      <a class="button-quiet" routerLink="/cadastro">Criar conta <span aria-hidden="true">↗</span></a>
+    }
+  </nav>
 </header>
 <main id="main" #mainContent tabindex="-1"><router-outlet /></main>
 <footer class="site-footer">

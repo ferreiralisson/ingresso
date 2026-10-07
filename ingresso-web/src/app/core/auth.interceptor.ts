@@ -10,7 +10,9 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const isApi = request.url === api || request.url.startsWith(`${api}/`);
   const path = request.url.split('?')[0];
   const isPublic =
-    path === `${api}/auth/login` || (path === `${api}/usuarios` && request.method === 'POST');
+    path === `${api}/auth/login` ||
+    (path === `${api}/usuarios` && request.method === 'POST') ||
+    (request.method === 'GET' && (path === `${api}/eventos` || path.startsWith(`${api}/eventos/`)));
   const session = isApi && !isPublic && auth.isAuthenticated() ? auth.session() : null;
   const outgoing = session
     ? request.clone({ setHeaders: { Authorization: `Bearer ${session.token}` } })

@@ -12,7 +12,6 @@ export interface Credentials {
 }
 export interface CreateUser extends Credentials {
   nome: string;
-  perfil: 'USER' | 'ADMIN';
 }
 export interface AuthResponse {
   token: string;

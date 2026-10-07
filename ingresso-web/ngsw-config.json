@@ -1,0 +1,12 @@
+{
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app-shell",
+      "installMode": "prefetch",
+      "resources": {
+        "files": ["/favicon.ico", "/favicon.svg", "/index.html", "/*.css", "/*.js", "/*.webmanifest"]
+      }
+    }
+  ]
+}

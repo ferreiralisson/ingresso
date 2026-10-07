@@ -11,7 +11,6 @@ public record CreateUsuarioRequest(
     String email,
     @NotBlank
     String password,
-    @NotBlank
     String perfil
 ) {
 }

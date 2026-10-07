@@ -40,7 +40,6 @@ export class Register {
         nome: value.nome.trim(),
         email: value.email.trim(),
         password: value.password,
-        perfil: 'USER',
       })
       .pipe(
         takeUntilDestroyed(this.destroyRef),

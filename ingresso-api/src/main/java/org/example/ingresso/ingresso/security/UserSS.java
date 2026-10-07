@@ -7,30 +7,31 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public class UserSS implements UserDetails {
 
     private final Long id;
     private final String email;
     private final String password;
-    private final UsuarioPerfil usuarioPerfil;
+    private final Set<UsuarioPerfil> perfis;
 
-    public UserSS(Long id, String email, String password, UsuarioPerfil usuarioPerfil) {
+    public UserSS(Long id, String email, String password, Collection<UsuarioPerfil> perfis) {
         this.id = id;
         this.email = email;
         this.password = password;
-        this.usuarioPerfil = usuarioPerfil;
+        this.perfis = Set.copyOf(perfis);
+    }
+
+    public UserSS(Long id, String email, String password, UsuarioPerfil usuarioPerfil) {
+        this(id, email, password, List.of(usuarioPerfil));
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (usuarioPerfil == UsuarioPerfil.ADMIN) {
-            return List.of(
-                new SimpleGrantedAuthority("ROLE_ADMIN"),
-                new SimpleGrantedAuthority("ROLE_USER")
-            );
-        }
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return perfis.stream()
+            .map(perfil -> new SimpleGrantedAuthority("ROLE_" + perfil.name()))
+            .toList();
     }
 
     public Long getId() {

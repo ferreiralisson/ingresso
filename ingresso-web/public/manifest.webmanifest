@@ -1,0 +1,9 @@
+{
+  "name": "Ingresso",
+  "short_name": "Ingresso",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8f3",
+  "theme_color": "#244c37",
+  "lang": "pt-BR"
+}

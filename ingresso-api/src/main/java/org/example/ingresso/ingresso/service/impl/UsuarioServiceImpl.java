@@ -28,13 +28,11 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new IllegalArgumentException("Email ja cadastrado");
         });
 
-        var perfil = UsuarioPerfil.ADMIN.name().equals(request.perfil()) ? UsuarioPerfil.ADMIN : UsuarioPerfil.USER;
-
         Usuario usuario = new Usuario(
                 request.nome(),
                 request.email(),
                 passwordEncoder.encode(request.password()),
-                perfil
+            UsuarioPerfil.USER
         );
 
         usuarioRepository.save(usuario);
@@ -48,7 +46,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                         usuario.getId(),
                         usuario.getNome(),
                         usuario.getEmail(),
-                        usuario.getUsuarioPerfil()
+                        usuario.getPerfis()
                 ))
                 .toList();
 
