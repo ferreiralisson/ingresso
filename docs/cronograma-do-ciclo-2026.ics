@@ -1,0 +1,85 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Cronograma do ciclo//PT-BR
+CALSCALE:GREGORIAN
+BEGIN:VTIMEZONE
+TZID:America/Recife
+BEGIN:STANDARD
+DTSTART:19700101T000000
+TZOFFSETFROM:-0300
+TZOFFSETTO:-0300
+TZNAME:-03
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:4f246cc3-dce7-47a1-bf2c-e5663048f282@cronograma-ciclo
+DTSTAMP:20261008T020000Z
+DTSTART;TZID=America/Recife:20261007T193000
+DTEND;TZID=America/Recife:20261007T210000
+SUMMARY:Kick-off
+DESCRIPTION:Livro\, dinâmica e preparação.\nCronograma do ciclo. Ano con
+ siderado: 2026.
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:8276eb62-dc5f-4f0b-8307-dbb2d8ea553a@cronograma-ciclo
+DTSTAMP:20261008T020000Z
+DTSTART;TZID=America/Recife:20261021T193000
+DTEND;TZID=America/Recife:20261021T213000
+SUMMARY:Design estratégico
+DESCRIPTION:Capítulos 1–4. Domínio\, linguagem e contextos.\nCronograma
+  do ciclo. Ano considerado: 2026.
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:30ac8a3f-e768-444a-abdf-0517625e1d3d@cronograma-ciclo
+DTSTAMP:20261008T020000Z
+DTSTART;TZID=America/Recife:20261104T193000
+DTEND;TZID=America/Recife:20261104T213000
+SUMMARY:Lógica de negócio
+DESCRIPTION:Capítulos 5–8. Modelos e arquitetura.\nCronograma do ciclo.
+ Ano considerado: 2026.
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:89695e60-99ac-4483-9c5f-32db2129be9b@cronograma-ciclo
+DTSTAMP:20261008T020000Z
+DTSTART;TZID=America/Recife:20261118T193000
+DTEND;TZID=America/Recife:20261118T213000
+SUMMARY:Comunicação e descoberta
+DESCRIPTION:Capítulos 9–12. Evolução e EventStorming.\nCronograma do c
+ iclo. Ano considerado: 2026.
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:a8941518-f473-4e2a-893c-1a4b012c2a72@cronograma-ciclo
+DTSTAMP:20261008T020000Z
+DTSTART;TZID=America/Recife:20261202T193000
+DTEND;TZID=America/Recife:20261202T213000
+SUMMARY:Arquiteturas modernas
+DESCRIPTION:Capítulos 13–16. Microsserviços\, eventos e Data Mesh.\nCro
+ nograma do ciclo. Ano considerado: 2026.
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2f08c592-5e77-4635-818a-2f36593ffc7e@cronograma-ciclo
+DTSTAMP:20261008T020000Z
+DTSTART;TZID=America/Recife:20261216T193000
+DTEND;TZID=America/Recife:20261216T213000
+SUMMARY:Estudo de caso e fechamento
+DESCRIPTION:Capítulos 17–18. Síntese e perguntas para o autor.\nCronogr
+ ama do ciclo. Ano considerado: 2026.
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:ae2230c5-fd9f-4e4f-b813-5dd6b4aa6dcb@cronograma-ciclo
+DTSTAMP:20261008T020000Z
+DTSTART;TZID=America/Recife:20261219T100000
+DTEND;TZID=America/Recife:20261219T113000
+SUMMARY:Q&A com Vlad Khononov — aguardando confirmação
+DESCRIPTION:Evento especial de encerramento. Data e horário planejados\, a
+ guardando confirmação. 10h São Paulo / 15h Israel.\nCronograma do ciclo
+ . Ano considerado: 2026.
+STATUS:TENTATIVE
+END:VEVENT
+END:VCALENDAR

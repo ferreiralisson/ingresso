@@ -6,6 +6,8 @@ import org.example.ingresso.ingresso.dto.EventStaffInviteRequest;
 import org.example.ingresso.ingresso.dto.EventStaffInviteResponse;
 import org.example.ingresso.ingresso.security.UserSS;
 import org.example.ingresso.ingresso.service.EventStaffService;
+import org.example.ingresso.ingresso.service.dto.CoreServiceContracts.AcceptInvitationCommand;
+import org.example.ingresso.ingresso.service.dto.CoreServiceContracts.EventStaffInvite;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,7 +37,10 @@ public class EventStaffController {
         @RequestBody @Valid EventStaffInviteRequest request,
         @AuthenticationPrincipal UserSS actor
     ) {
-        return ResponseEntity.status(201).body(eventStaffService.invite(eventId, request.email(), actor));
+        EventStaffInvite invite = eventStaffService.invite(eventId, request.email(), actor.getId());
+        return ResponseEntity.status(201).body(new EventStaffInviteResponse(
+            invite.id(), invite.eventId(), invite.email(), invite.token(), invite.expiresAt()
+        ));
     }
 
     @GetMapping("/eventos/{eventId}/equipe")
@@ -43,7 +48,11 @@ public class EventStaffController {
         @PathVariable Long eventId,
         @AuthenticationPrincipal UserSS actor
     ) {
-        return ResponseEntity.ok(eventStaffService.list(eventId, actor));
+        return ResponseEntity.ok(eventStaffService.list(eventId, actor.getId()).stream()
+            .map(grant -> new EventStaffGrantResponse(
+                grant.id(), grant.userId(), grant.email(), grant.acceptedAt()
+            ))
+            .toList());
     }
 
     @DeleteMapping("/eventos/{eventId}/equipe/{invitationId}")
@@ -52,7 +61,7 @@ public class EventStaffController {
         @PathVariable Long invitationId,
         @AuthenticationPrincipal UserSS actor
     ) {
-        eventStaffService.revoke(eventId, invitationId, actor);
+        eventStaffService.revoke(eventId, invitationId, actor.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -61,7 +70,7 @@ public class EventStaffController {
         @RequestBody @Valid AcceptEventStaffInviteRequest request,
         @AuthenticationPrincipal UserSS identity
     ) {
-        eventStaffService.accept(request.token(), identity);
+        eventStaffService.accept(new AcceptInvitationCommand(request.token(), identity.getId(), identity.getUsername()));
         return ResponseEntity.noContent().build();
     }
 }

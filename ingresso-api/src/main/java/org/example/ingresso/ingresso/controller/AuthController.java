@@ -34,7 +34,8 @@ public class AuthController {
             credentialRequest.password()
         );
         var auth = authenticationManager.authenticate(usernamePassword);
-        var token = tokenService.generateToken((UserSS) Objects.requireNonNull(auth.getPrincipal()));
+        UserSS user = (UserSS) Objects.requireNonNull(auth.getPrincipal());
+        var token = tokenService.generateToken(user.getUsername());
 
         return ResponseEntity.ok(new AuthResponse(token));
     }

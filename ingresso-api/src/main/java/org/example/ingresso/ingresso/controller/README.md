@@ -13,7 +13,7 @@ Expõem contratos HTTP e delegam autenticação, eventos/ofertas e gestão de us
 - `EntryValidationController`: operador autorizado valida QR online, provisiona manifesto/sincroniza scans offline; ADMIN consulta auditoria e corrige check-in.
 - `EventStaffController`: produtor dono ou ADMIN gerencia grants por evento; convite é aceito por identidade autenticada vinculada ao e-mail.
 - `TicketRefundController`: comprador pede refund de ticket próprio; producer/Admin consultam relatórios por event/global em controllers de finance.
-- Dependem dos DTOs em `dto`, serviços em `service`/`service.impl` e regras de autorização em `config`/Spring Security.
+- Dependem de DTOs HTTP em `dto`, interfaces de casos de uso em `service` e autorização em `config`/Spring Security. Fazem o mapeamento entre requests/responses HTTP e DTOs da aplicação em `service.dto`; não dependem de classes concretas de `service.impl`.
 
 ## Pontos críticos e limites
 

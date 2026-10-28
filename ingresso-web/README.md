@@ -4,7 +4,7 @@ Front-end Angular de integração com `../ingresso-api`. Inclui catálogo, gest�
 
 ## Executar localmente
 
-Requisitos: Node.js 22.22.3 ou superior na linha 22, npm e Java 21 para a API. [Compatibilidade do Angular](https://angular.dev/reference/versions).
+Requisitos: Node.js 22.22.3 ou superior na linha 22, npm e Java 25 (LTS) para a API. [Compatibilidade do Angular](https://angular.dev/reference/versions).
 
 Em um terminal, na raiz do repositório:
 
@@ -49,7 +49,7 @@ O frontend não oferece listagem/edição de usuários, consulta de perfil, recu
 
 ## Responsabilidade, dependências e entradas
 
-Este módulo implementa as jornadas de comprador, produtor e admin na web. A entrada é `src/main.ts`, que inicializa `App` com `appConfig`; `app.routes.ts` registra rotas com carregamento lazy. As páginas usam `AuthService`, `EventApi`, guards e interceptor de `core`, e o layout compartilhado de `shared`.
+Este módulo implementa as jornadas de comprador, produtor e admin na web. A entrada é `src/main.ts`, que inicializa `App` com `appConfig`; `app.routes.ts` registra rotas com carregamento lazy. As páginas das funcionalidades usam seus próprios clientes em `features/*/data-access` e modelos em `features/*/models`; sessão, interceptor e guard genérico vêm de `core/auth`, e o layout reutilizável vem de `shared`.
 
 Dependências de runtime principais: Angular 22.1, `@angular/service-worker`, `@zxing/browser`, `idb`, RxJS 7.8 e tslib. Ferramentas de build/teste: Angular CLI/build, TypeScript 6, Vitest e jsdom. Service worker é ativado no build de produção; o proxy dev não oferece garantia de execução offline.
 
@@ -59,13 +59,17 @@ O token fica em `sessionStorage`, com alternativa em memória se o armazenamento
 
 O interceptor envia `Authorization: Bearer` apenas em requisições privadas para a base da própria API. Login e cadastro não recebem esse cabeçalho. Uma resposta 401 de uma rota privada encerra a sessão. A leitura dos claims no navegador serve à interface: autenticação e autorização efetivas continuam sendo responsabilidade do servidor.
 
-O cadastro público não envia papel. O backend também ignora o campo legado `perfil` se um cliente antigo ainda o enviar e sempre atribui `USER`. Produtores são concedidos por convite ADMIN com token de uso único vinculado ao e-mail e expiração de 48 horas. O primeiro ADMIN é provisionado manualmente conforme o [runbook](../specs/001-foundation-security/manual-admin-provisioning.md). Além disso, `nome` tem restrição de unicidade no banco, mas apenas conflitos de e-mail recebem tratamento específico na API; um nome duplicado pode resultar em erro genérico.
+O cadastro público não envia papel. O backend também ignora o campo legado `perfil` se um cliente antigo ainda o enviar e sempre atribui `USER`. Produtores são concedidos por convite ADMIN com token de uso único vinculado ao e-mail e expiração de 48 horas. O primeiro ADMIN é provisionado manualmente conforme o [runbook](../docs/specs/001-foundation-security/manual-admin-provisioning.md). Além disso, `nome` tem restrição de unicidade no banco, mas apenas conflitos de e-mail recebem tratamento específico na API; um nome duplicado pode resultar em erro genérico.
 
 ## Organização
 
-- `src/app/core`: contratos de auth/events/orders/entry/finance, IndexedDB para manifestos hash-only e fila offline, guards e interceptor.
-- `src/app/pages`: catálogo, checkout/histórico com QR/refund, operação de entrada, relatórios e equipe por evento.
-- `src/app/shared`: composição visual compartilhada.
+- `src/app/core`: sessão, guard genérico, interceptor HTTP e token `API_URL`.
+- `src/app/features/auth`: páginas de login, cadastro e conta, modelos e validação de formulário.
+- `src/app/features/events`: catálogo, detalhes, edição do produtor e moderação; um único `EventApi` atende esses fluxos.
+- `src/app/features/orders`: checkout, histórico, tickets/QR e refunds simulados.
+- `src/app/features/entry`: scanner, equipe, convites e store IndexedDB para manifestos hash-only e fila offline; o guard específico mantém acesso offline com manifesto válido.
+- `src/app/features/finance`: relatórios do produtor e da administração.
+- `src/app/shared`: layout e componentes visuais sem regra de negócio.
 - `src/styles.css`: identidade visual e adaptação para celular.
 
 O pagamento e refunds são mock e não movimentam dinheiro. O histórico permite solicitar refund por ticket elegível e mostra o estado SIMULATED; relatórios não inventam comissão/repasse. O manifesto offline vale 24 horas, contém hashes e fica vinculado ao operador.

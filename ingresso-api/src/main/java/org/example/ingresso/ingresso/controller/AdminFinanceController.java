@@ -1,7 +1,9 @@
 package org.example.ingresso.ingresso.controller;
 
 import org.example.ingresso.ingresso.dto.AdminFinancialReport;
+import org.example.ingresso.ingresso.dto.EventFinancialReport;
 import org.example.ingresso.ingresso.service.FinancialReportService;
+import org.example.ingresso.ingresso.service.dto.CoreServiceContracts.FinancialReport;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,15 @@ public class AdminFinanceController {
 
     @GetMapping
     public ResponseEntity<AdminFinancialReport> report() {
-        return ResponseEntity.ok(reportService.administratorReport());
+        FinancialReport report = reportService.administratorReport();
+        return ResponseEntity.ok(new AdminFinancialReport(
+            report.paidOrderCount(), report.paidTicketCount(), report.refundedTicketCount(),
+            report.grossSalesInCents(), report.simulatedRefundsInCents(), report.remainingGrossInCents(),
+            report.events().stream().map(event -> new EventFinancialReport(
+                event.eventId(), event.eventTitle(), event.paidOrderCount(), event.paidTicketCount(),
+                event.refundedTicketCount(), event.grossSalesInCents(), event.simulatedRefundsInCents(),
+                event.remainingGrossInCents()
+            )).toList()
+        ));
     }
 }

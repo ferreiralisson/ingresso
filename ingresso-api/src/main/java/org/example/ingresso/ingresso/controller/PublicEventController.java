@@ -27,11 +27,11 @@ public class PublicEventController {
     public ResponseEntity<Page<EventSummaryResponse>> list(
         @PageableDefault(size = 20, sort = "startsAt", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        return ResponseEntity.ok(eventService.listPublic(pageable));
+        return ResponseEntity.ok(EventHttpMapper.toSummaryPage(eventService.listPublic(PageHttpMapper.toQuery(pageable))));
     }
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventResponse> get(@PathVariable Long eventId) {
-        return ResponseEntity.ok(eventService.getPublic(eventId));
+        return ResponseEntity.ok(EventHttpMapper.toResponse(eventService.getPublic(eventId)));
     }
 }

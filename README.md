@@ -2,9 +2,16 @@
 
 Marketplace web e API para eventos, ofertas, pedidos e operação de entrada. A API usa pagamento e reembolsos simulados; não há movimentação de dinheiro real.
 
+## Organização
+
+- `ingresso-api/` e `ingresso-web/` são projetos executáveis e implantáveis independentemente.
+- A API segue `controller` → interfaces em `service` → implementações em `service.impl` → `repository`; contratos de aplicação ficam em `service.dto`.
+- O web usa Angular standalone, com páginas, modelos e clientes de dados organizados por funcionalidade em `ingresso-web/src/app/features/`; `core` contém infraestrutura transversal e `shared` contém UI reutilizável.
+- A organização do código não muda os contratos HTTP nem as capacidades simuladas descritas nos READMEs e especificações.
+
 ## Pré-requisitos
 
-- Java 21
+- Java 25 (latest LTS)
 - Node.js 22.22.3 ou superior na linha 22 e npm
 - macOS, Linux ou Windows com shell compatível
 
@@ -64,7 +71,9 @@ npm run build
 
 - [API](ingresso-api/README.md)
 - [Frontend](ingresso-web/README.md)
-- [Arquitetura do sistema](Arquitetura%20do%20Sistema.md)
-- [Funcionalidades e sequência de implementação](Funcionalidades%20a%20Implementar.md)
-- [Objetivo do sistema](Objetivo%20do%20Sistema.md)
-- Especificações de features: [`specs/`](specs/)
+- [Documentação do projeto](docs/README.md)
+- [Arquitetura do sistema](docs/Arquitetura%20do%20Sistema.md)
+- [Funcionalidades e sequência de implementação](docs/Funcionalidades%20a%20Implementar.md)
+- [Objetivo do sistema](docs/Objetivo%20do%20Sistema.md)
+- [Cronograma do ciclo 2026](docs/cronograma-do-ciclo-2026.ics)
+- Especificações de features: [docs/specs/](docs/specs/)

@@ -36,7 +36,9 @@ public class EntryValidationController {
         @RequestBody @Valid EntryValidationRequest request,
         @AuthenticationPrincipal UserSS operator
     ) {
-        return ResponseEntity.ok(entryValidationService.validateOnline(eventId, request, operator));
+        return ResponseEntity.ok(EntryHttpMapper.toResponse(
+            entryValidationService.validateOnline(eventId, EntryHttpMapper.toCommand(request), operator.getId())
+        ));
     }
 
     @GetMapping("/eventos/{eventId}/manifesto-offline")
@@ -44,7 +46,9 @@ public class EntryValidationController {
         @PathVariable Long eventId,
         @AuthenticationPrincipal UserSS operator
     ) {
-        return ResponseEntity.ok(entryValidationService.provisionOffline(eventId, operator));
+        return ResponseEntity.ok(EntryHttpMapper.toResponse(
+            entryValidationService.provisionOffline(eventId, operator.getId())
+        ));
     }
 
     @PostMapping("/eventos/{eventId}/sincronizar")
@@ -53,7 +57,9 @@ public class EntryValidationController {
         @RequestBody @Valid OfflineSyncRequest request,
         @AuthenticationPrincipal UserSS operator
     ) {
-        return ResponseEntity.ok(entryValidationService.synchronizeOffline(eventId, request, operator));
+        return ResponseEntity.ok(EntryHttpMapper.toResponse(entryValidationService.synchronizeOffline(
+            eventId, EntryHttpMapper.toCommand(request), operator.getId()
+        )));
     }
 
     @GetMapping("/eventos/{eventId}/auditoria")
@@ -62,7 +68,11 @@ public class EntryValidationController {
         @AuthenticationPrincipal UserSS operator,
         Pageable pageable
     ) {
-        return ResponseEntity.ok(entryValidationService.history(eventId, operator, pageable));
+        var result = entryValidationService.history(eventId, operator.getId(), PageHttpMapper.toQuery(pageable));
+        var responses = result.content().stream().map(EntryHttpMapper::toResponse).toList();
+        return ResponseEntity.ok(PageHttpMapper.toPage(new org.example.ingresso.ingresso.service.dto.PageResult<>(
+            responses, result.pageNumber(), result.pageSize(), result.totalElements(), result.sort()
+        )));
     }
 
     @PostMapping("/auditoria/{checkInId}/corrigir")
@@ -71,7 +81,7 @@ public class EntryValidationController {
         @RequestBody @Valid EntryCorrectionRequest request,
         @AuthenticationPrincipal UserSS administrator
     ) {
-        entryValidationService.correct(checkInId, request, administrator);
+        entryValidationService.correct(checkInId, EntryHttpMapper.toCommand(request), administrator.getId());
         return ResponseEntity.noContent().build();
     }
 }

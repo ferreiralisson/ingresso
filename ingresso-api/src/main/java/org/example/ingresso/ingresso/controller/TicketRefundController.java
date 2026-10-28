@@ -30,8 +30,14 @@ public class TicketRefundController {
         @RequestBody(required = false) @Valid TicketRefundRequest request,
         @AuthenticationPrincipal UserSS buyer
     ) {
-        return ResponseEntity.status(201).body(ticketRefundService.requestBuyerRefund(
-            orderId, ticketId, request == null ? null : request.reason(), buyer
+        var refund = ticketRefundService.requestBuyerRefund(
+            orderId, ticketId, request == null ? null : request.reason(), buyer.getId()
+        );
+        return ResponseEntity.status(201).body(new TicketRefundResponse(
+            refund.id(), refund.ticketId(), refund.orderId(), refund.eventId(),
+            org.example.ingresso.ingresso.model.enums.TicketRefundSource.valueOf(refund.source()),
+            org.example.ingresso.ingresso.model.enums.TicketRefundStatus.valueOf(refund.status()),
+            refund.amountInCents(), refund.reason(), refund.createdAt()
         ));
     }
 }

@@ -3,6 +3,7 @@ package org.example.ingresso.ingresso.controller;
 import org.example.ingresso.ingresso.dto.EventFinancialReport;
 import org.example.ingresso.ingresso.security.UserSS;
 import org.example.ingresso.ingresso.service.FinancialReportService;
+import org.example.ingresso.ingresso.service.dto.CoreServiceContracts.FinancialEventReport;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,6 +30,11 @@ public class ProducerFinanceController {
         @PathVariable Long eventId,
         @AuthenticationPrincipal UserSS producer
     ) {
-        return ResponseEntity.ok(reportService.producerEventReport(eventId, producer));
+        FinancialEventReport report = reportService.producerEventReport(eventId, producer.getId());
+        return ResponseEntity.ok(new EventFinancialReport(
+            report.eventId(), report.eventTitle(), report.paidOrderCount(), report.paidTicketCount(),
+            report.refundedTicketCount(), report.grossSalesInCents(), report.simulatedRefundsInCents(),
+            report.remainingGrossInCents()
+        ));
     }
 }

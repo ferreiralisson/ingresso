@@ -1,0 +1,59 @@
+package org.example.ingresso.ingresso.security;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
+@Service
+public class TokenServiceImpl implements TokenService {
+
+    private static final String ISSUER = "ingresso-api";
+
+    @Value("${token.secret}")
+    private String secret;
+
+    @PostConstruct
+    void validateSecret() {
+        if (secret == null || secret.getBytes(java.nio.charset.StandardCharsets.UTF_8).length < 64) {
+            throw new IllegalStateException("TOKEN_SECRET deve conter pelo menos 64 bytes UTF-8");
+        }
+    }
+
+    public String generateToken(String username) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC512(secret);
+            return JWT.create()
+                .withIssuer(ISSUER)
+                .withSubject(username)
+                .withExpiresAt(genExpirationDate())
+                .sign(algorithm);
+        } catch (JWTCreationException exception) {
+            throw new IllegalStateException("Erro ao gerar token", exception);
+        }
+    }
+
+    public String validateToken(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC512(secret);
+            return JWT.require(algorithm)
+                .withIssuer(ISSUER)
+                .build()
+                .verify(token)
+                .getSubject();
+        } catch (JWTVerificationException exception) {
+            return null;
+        }
+    }
+
+    private Instant genExpirationDate() {
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+    }
+}

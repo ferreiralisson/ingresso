@@ -37,7 +37,9 @@ public class PurchaseOrderController {
         @AuthenticationPrincipal UserSS buyer
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(orderService.create(request, idempotencyKey, buyer));
+            .body(PurchaseHttpMapper.toResponse(
+                orderService.create(PurchaseHttpMapper.toCommand(request), idempotencyKey, buyer.getId())
+            ));
     }
 
     @PostMapping("/{orderId}/pagamento")
@@ -45,7 +47,7 @@ public class PurchaseOrderController {
         @PathVariable Long orderId,
         @AuthenticationPrincipal UserSS buyer
     ) {
-        OrderResponse order = orderService.startPayment(orderId, buyer);
+        OrderResponse order = PurchaseHttpMapper.toResponse(orderService.startPayment(orderId, buyer.getId()));
         if (order.status() == OrderStatus.PENDING_PAYMENT) {
             return ResponseEntity.accepted().body(order);
         }
@@ -57,7 +59,11 @@ public class PurchaseOrderController {
         @AuthenticationPrincipal UserSS buyer,
         @PageableDefault(size = 20, sort = "createdAt") Pageable pageable
     ) {
-        return ResponseEntity.ok(orderService.listMine(buyer, pageable));
+        var result = orderService.listMine(buyer.getId(), PageHttpMapper.toQuery(pageable));
+        var orders = result.content().stream().map(PurchaseHttpMapper::toResponse).toList();
+        return ResponseEntity.ok(PageHttpMapper.toPage(new org.example.ingresso.ingresso.service.dto.PageResult<>(
+            orders, result.pageNumber(), result.pageSize(), result.totalElements(), result.sort()
+        )));
     }
 
     @GetMapping("/{orderId}")
@@ -65,6 +71,6 @@ public class PurchaseOrderController {
         @PathVariable Long orderId,
         @AuthenticationPrincipal UserSS buyer
     ) {
-        return ResponseEntity.ok(orderService.getMine(orderId, buyer));
+        return ResponseEntity.ok(PurchaseHttpMapper.toResponse(orderService.getMine(orderId, buyer.getId())));
     }
 }

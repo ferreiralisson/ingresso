@@ -34,12 +34,14 @@ public class AdminEventController {
     public ResponseEntity<Page<EventSummaryResponse>> list(
         @PageableDefault(size = 20, sort = "startsAt", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        return ResponseEntity.ok(eventService.listAllForAdmin(pageable));
+        return ResponseEntity.ok(EventHttpMapper.toSummaryPage(
+            eventService.listAllForAdmin(PageHttpMapper.toQuery(pageable))
+        ));
     }
 
     @GetMapping("/{eventId}")
     public ResponseEntity<EventResponse> get(@PathVariable Long eventId) {
-        return ResponseEntity.ok(eventService.getAdminEvent(eventId));
+        return ResponseEntity.ok(EventHttpMapper.toResponse(eventService.getAdminEvent(eventId)));
     }
 
     @PatchMapping("/{eventId}/suspender")
@@ -50,7 +52,7 @@ public class AdminEventController {
 
     @PatchMapping("/{eventId}/cancelar")
     public ResponseEntity<Void> cancel(@PathVariable Long eventId, @AuthenticationPrincipal UserSS administrator) {
-        eventService.cancel(eventId, administrator);
+        eventService.cancel(eventId, administrator.getId());
         return ResponseEntity.noContent().build();
     }
 }

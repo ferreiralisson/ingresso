@@ -4,6 +4,7 @@ import org.example.ingresso.ingresso.dto.CreateProducerInvitationRequest;
 import org.example.ingresso.ingresso.dto.ProducerInvitationResponse;
 import org.example.ingresso.ingresso.security.UserSS;
 import org.example.ingresso.ingresso.service.ProducerInvitationService;
+import org.example.ingresso.ingresso.service.dto.CoreServiceContracts.ProducerInvitationResult;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +35,10 @@ public class AdminProducerController {
         @RequestBody @Valid CreateProducerInvitationRequest request,
         @AuthenticationPrincipal UserSS administrator
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(invitationService.inviteProducer(request.email(), administrator));
+        ProducerInvitationResult invitation = invitationService.inviteProducer(request.email(), administrator.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ProducerInvitationResponse(
+            invitation.id(), invitation.email(), invitation.token(), invitation.expiresAt()
+        ));
     }
 
     @PreAuthorize(SECURITY_ROLE_ADMIN)
@@ -44,7 +47,7 @@ public class AdminProducerController {
         @PathVariable Long invitationId,
         @AuthenticationPrincipal UserSS administrator
     ) {
-        invitationService.revokeInvitation(invitationId, administrator);
+        invitationService.revokeInvitation(invitationId, administrator.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -54,7 +57,7 @@ public class AdminProducerController {
         @PathVariable Long userId,
         @AuthenticationPrincipal UserSS administrator
     ) {
-        invitationService.revokeProducer(userId, administrator);
+        invitationService.revokeProducer(userId, administrator.getId());
         return ResponseEntity.noContent().build();
     }
 }

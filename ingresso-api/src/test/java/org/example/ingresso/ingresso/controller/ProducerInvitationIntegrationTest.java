@@ -10,7 +10,6 @@ import org.example.ingresso.ingresso.repository.PermissionAuditRepository;
 import org.example.ingresso.ingresso.repository.ProducerInvitationRepository;
 import org.example.ingresso.ingresso.repository.UsuarioRepository;
 import org.example.ingresso.ingresso.security.TokenService;
-import org.example.ingresso.ingresso.security.UserSS;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,12 +83,8 @@ class ProducerInvitationIntegrationTest {
             UsuarioPerfil.USER
         ));
 
-        administratorToken = tokenService.generateToken(new UserSS(
-            administrator.getId(), administrator.getEmail(), administrator.getSenha(), administrator.getPerfis()
-        ));
-        buyerToken = tokenService.generateToken(new UserSS(
-            buyer.getId(), buyer.getEmail(), buyer.getSenha(), buyer.getPerfis()
-        ));
+        administratorToken = tokenService.generateToken(administrator.getEmail());
+        buyerToken = tokenService.generateToken(buyer.getEmail());
     }
 
     @Test
@@ -120,9 +115,7 @@ class ProducerInvitationIntegrationTest {
 
         Usuario createdUser = usuarioRepository.findByEmailIgnoreCase("attempt@example.com").orElseThrow();
         assertEquals(Set.of(UsuarioPerfil.USER), createdUser.getPerfis());
-        String token = tokenService.generateToken(new UserSS(
-            createdUser.getId(), createdUser.getEmail(), createdUser.getSenha(), createdUser.getPerfis()
-        ));
+        String token = tokenService.generateToken(createdUser.getEmail());
 
         mockMvc.perform(get("/api/usuarios").header("Authorization", "Bearer " + token))
             .andExpect(status().isForbidden());
@@ -202,7 +195,7 @@ class ProducerInvitationIntegrationTest {
             passwordEncoder.encode("password"),
             UsuarioPerfil.USER
         ));
-        return tokenService.generateToken(new UserSS(user.getId(), user.getEmail(), user.getSenha(), Set.of(UsuarioPerfil.USER)));
+        return tokenService.generateToken(user.getEmail());
     }
 
     private void acceptInvitation(

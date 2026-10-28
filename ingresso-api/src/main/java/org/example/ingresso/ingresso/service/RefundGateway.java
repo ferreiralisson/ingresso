@@ -1,8 +1,8 @@
 package org.example.ingresso.ingresso.service;
 
-import org.example.ingresso.ingresso.model.enums.TicketRefundSource;
-import org.example.ingresso.ingresso.model.enums.TicketRefundStatus;
+import org.example.ingresso.ingresso.service.dto.RefundContracts.RefundRequest;
+import org.example.ingresso.ingresso.service.dto.RefundContracts.RefundResult;
 
 public interface RefundGateway {
-    TicketRefundStatus refund(Long ticketId, long amountInCents, TicketRefundSource source);
+    RefundResult refund(RefundRequest request);
 }

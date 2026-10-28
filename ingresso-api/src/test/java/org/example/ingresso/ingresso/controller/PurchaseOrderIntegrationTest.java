@@ -14,10 +14,10 @@ import org.example.ingresso.ingresso.repository.TicketCategoryRepository;
 import org.example.ingresso.ingresso.repository.TicketRefundRepository;
 import org.example.ingresso.ingresso.repository.UsuarioRepository;
 import org.example.ingresso.ingresso.security.TokenService;
-import org.example.ingresso.ingresso.security.UserSS;
-import org.example.ingresso.ingresso.service.MockPaymentGateway;
-import org.example.ingresso.ingresso.service.MockEmailGateway;
+import org.example.ingresso.ingresso.service.impl.MockPaymentGateway;
+import org.example.ingresso.ingresso.service.impl.MockEmailGateway;
 import org.example.ingresso.ingresso.service.PurchaseOrderService;
+import org.example.ingresso.ingresso.service.dto.PurchaseContracts.PaymentResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -233,10 +233,10 @@ class PurchaseOrderIntegrationTest {
         String attemptKey = jsonString(payment.getResponse().getContentAsString(), "attemptKey");
         jdbcTemplate.update("UPDATE ticket_orders SET reservation_expires_at = DATEADD('SECOND', -1, CURRENT_TIMESTAMP) WHERE id = ?", orderId);
 
-        assertEquals(OrderStatus.EXPIRED,
-            orderService.processPaymentResult(orderId, attemptKey, PaymentOutcome.APPROVED).status());
-        assertEquals(OrderStatus.EXPIRED,
-            orderService.processPaymentResult(orderId, attemptKey, PaymentOutcome.APPROVED).status());
+        assertEquals("EXPIRED",
+            orderService.processPaymentResult(orderId, attemptKey, PaymentResult.APPROVED).status());
+        assertEquals("EXPIRED",
+            orderService.processPaymentResult(orderId, attemptKey, PaymentResult.APPROVED).status());
         assertEquals(0, category(event.categoryId()).getReservedQuantity());
         assertEquals(0, category(event.categoryId()).getSoldQuantity());
     }
@@ -252,10 +252,10 @@ class PurchaseOrderIntegrationTest {
             .andReturn();
         String attemptKey = jsonString(payment.getResponse().getContentAsString(), "attemptKey");
 
-        assertEquals(OrderStatus.PAID,
-            orderService.processPaymentResult(orderId, attemptKey, PaymentOutcome.APPROVED).status());
-        assertEquals(OrderStatus.PAID,
-            orderService.processPaymentResult(orderId, attemptKey, PaymentOutcome.APPROVED).status());
+        assertEquals("PAID",
+            orderService.processPaymentResult(orderId, attemptKey, PaymentResult.APPROVED).status());
+        assertEquals("PAID",
+            orderService.processPaymentResult(orderId, attemptKey, PaymentResult.APPROVED).status());
         assertEquals(2, ticketRepository.countByOrder_Id(orderId));
         assertEquals(1, emailGateway.getCapturedMessages().size());
     }
@@ -893,7 +893,7 @@ class PurchaseOrderIntegrationTest {
 
     private String createUser(String name, String email, UsuarioPerfil profile) {
         Usuario user = usuarioRepository.save(new Usuario(name, email, passwordEncoder.encode("password"), profile));
-        return tokenService.generateToken(new UserSS(user.getId(), user.getEmail(), user.getSenha(), user.getPerfis()));
+        return tokenService.generateToken(user.getEmail());
     }
 
     private record EventSeed(Long id, Long categoryId, Long seatId) {

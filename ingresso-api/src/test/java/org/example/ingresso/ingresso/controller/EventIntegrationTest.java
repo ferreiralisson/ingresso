@@ -4,7 +4,6 @@ import org.example.ingresso.ingresso.model.Usuario;
 import org.example.ingresso.ingresso.model.enums.UsuarioPerfil;
 import org.example.ingresso.ingresso.repository.UsuarioRepository;
 import org.example.ingresso.ingresso.security.TokenService;
-import org.example.ingresso.ingresso.security.UserSS;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -262,6 +261,6 @@ class EventIntegrationTest {
     }
 
     private String tokenFor(Usuario user) {
-        return tokenService.generateToken(new UserSS(user.getId(), user.getEmail(), user.getSenha(), user.getPerfis()));
+        return tokenService.generateToken(user.getEmail());
     }
 }

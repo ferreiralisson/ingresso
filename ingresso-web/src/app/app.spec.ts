@@ -4,7 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideRouter, Router } from '@angular/router';
 import { App } from './app';
 import { routes } from './app.routes';
-import { AuthService, SESSION_KEY } from './core/auth.service';
+import { AuthService, SESSION_KEY } from './core/auth/auth.service';
 
 describe('Fluxos dos formulários', () => {
   let http: HttpTestingController;

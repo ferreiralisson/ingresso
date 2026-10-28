@@ -4,7 +4,7 @@ API REST Spring Boot para contas/segurança, eventos/ofertas, pedidos/tickets QR
 
 ## Execução e validação
 
-Requisitos: Java 21 e Maven (ou wrapper incluído).
+Requisitos: Java 25 (LTS) e Maven (ou wrapper incluído).
 
 ```sh
 export TOKEN_SECRET="$(openssl rand -hex 32)"
@@ -14,19 +14,22 @@ export TOKEN_SECRET="$(openssl rand -hex 32)"
 
 Configure `TOKEN_SECRET` com ao menos 64 bytes UTF-8 antes de iniciar; a API falha no startup se estiver ausente ou curto. O datasource padrão é H2 em arquivo (`./data/ingresso` relativo ao módulo), e Flyway aplica migrations antes de Hibernate validar o schema. O console H2 em `/h2-console` fica desabilitado por padrão; habilite-o somente em ambiente local confiável. Swagger/OpenAPI fica em `/swagger-ui.html` e `/v3/api-docs`.
 
-Configuração disponível por ambiente: `TOKEN_SECRET`, `INGRESSO_DB_URL`, `INGRESSO_DB_USERNAME`, `INGRESSO_DB_PASSWORD`, `H2_CONSOLE_ENABLED`, `JPA_SHOW_SQL`, `PORT` e `INGRESSO_PAYMENT_MOCK_RESULT` (`APPROVED`, `DECLINED` ou `PENDING` em `dev`/`test`). O resultado não é aceito no payload do comprador. Consulte [`manual-admin-provisioning.md`](../specs/001-foundation-security/manual-admin-provisioning.md) para criar o primeiro administrador.
+Configuração disponível por ambiente: `TOKEN_SECRET`, `INGRESSO_DB_URL`, `INGRESSO_DB_USERNAME`, `INGRESSO_DB_PASSWORD`, `H2_CONSOLE_ENABLED`, `JPA_SHOW_SQL`, `PORT` e `INGRESSO_PAYMENT_MOCK_RESULT` (`APPROVED`, `DECLINED` ou `PENDING` em `dev`/`test`). O resultado não é aceito no payload do comprador. Consulte [`manual-admin-provisioning.md`](../docs/specs/001-foundation-security/manual-admin-provisioning.md) para criar o primeiro administrador.
 
 ## Responsabilidades e dependências
 
 - `controller`: contratos HTTP de autenticação, eventos, pedidos, equipe e validação de entrada; depende de services, DTOs e Spring Security.
-- `service` e `service.impl`: contas, eventos, pedidos/tickets, grants event-scoped, check-in, refunds simulados e relatórios brutos.
+- `service`: interfaces dos casos de uso e gateways; `service.impl`: implementações concretas e adapters mock/não configurados.
+- `service.dto`: comandos, consultas e resultados de aplicação usados nos contratos entre controllers e services.
 - `repository`: consultas JPA de contas, eventos, pedidos, tickets, grants, manifests, check-ins e refunds.
 - `model`: usuários/papéis, eventos/ofertas, pedidos/tickets, entrada, refunds e correções.
 - `dto`: contratos de requisição/resposta validados.
 - `security`: emissão/verificação JWT, filtro stateless e principal Spring Security.
 - `config`: cadeia de segurança, CORS, constantes de papel, handler de exceção e OpenAPI.
 
-Dependências principais: Spring Boot 4.1.1, Java 21, Spring MVC, Security, Validation, Data JPA, Flyway, H2, Auth0 `java-jwt` 4.4.0 e Springdoc 2.8.13. Escopos completos em `pom.xml`.
+Dependências principais: Spring Boot 4.1.1, Java 25, Spring MVC, Security, Validation, Data JPA, Flyway, H2, Auth0 `java-jwt` 4.4.0 e Springdoc 2.8.13. Escopos completos em `pom.xml`.
+
+Os controllers dependem das interfaces em `service`, não das implementações. Interfaces e DTOs de aplicação não expõem entidades JPA, repositories, `UserSS`, `Pageable` ou tipos HTTP; controllers fazem o mapeamento entre DTOs REST e DTOs de aplicação. `ServiceBoundaryTest` verifica esses limites com ArchUnit.
 
 ## Entradas e fluxos
 
@@ -54,26 +57,26 @@ Dependências principais: Spring Boot 4.1.1, Java 21, Spring MVC, Security, Vali
 - `DELETE /api/admin/convites/produtores/{id}` revoga convite pendente; `DELETE /api/admin/produtores/{userId}` remove somente o papel PRODUCER.
 - Demais rotas exigem autenticação na configuração de segurança. O filtro recupera Bearer, valida subject e carrega usuário no repositório.
 
-O web relacionado está em `../ingresso-web`; contratos e proxy estão documentados no [README do frontend](../ingresso-web/README.md). Arquitetura completa e riscos estão em [Arquitetura do Sistema](../Arquitetura%20do%20Sistema.md).
+O web relacionado está em `../ingresso-web`; contratos e proxy estão documentados no [README do frontend](../ingresso-web/README.md). Arquitetura completa e riscos estão em [Arquitetura do Sistema](../docs/Arquitetura%20do%20Sistema.md).
 
 ## Arquivos críticos e observações
 
 - `src/main/resources/application.properties`: configuração por ambiente; segredo sem valor padrão; H2 persistente e console opt-in.
 - `src/main/resources/db/migration`: migrações Flyway. A migração converte perfis legados e rebaixa ADMIN anterior a USER, com auditoria, pois o cadastro antigo permitia autoelevação.
-- `config/SecurityConfig.java`, `security/SecurityFilter.java`, `security/TokenService.java`: fronteira de segurança.
+- `config/SecurityConfig.java`, `security/SecurityFilter.java`, `security/TokenService.java` e `security/TokenServiceImpl.java`: fronteira de segurança.
 - `controller/AdminProducerController.java`, `controller/ProducerInvitationController.java`, `service/ProducerInvitationService.java`: convite, aceite, revogação e auditoria.
 - `controller/PublicEventController.java`, `controller/ProducerEventController.java`, `controller/AdminEventController.java`, `service/EventService.java`: domínio, ownership, catálogo e ciclo de vida.
 - `model/Event.java`, `model/TicketCategory.java`, `model/SeatSector.java`, `model/SeatRow.java`, `model/EventSeat.java`: agregado de evento e mapa de lugares.
 - `src/main/resources/db/migration/V3__events_and_offers.sql`: schema para eventos, categorias e assentos.
 - `src/main/resources/db/migration/V4__orders_and_mock_payments.sql` até `V11__ticket_refunds.sql`: pedidos, tickets, entrada, manifestos hash-only e refunds únicos por ticket.
-- `service/PurchaseOrderService.java`, `service/PaymentGateway.java`, `service/MockPaymentGateway.java`: locks de inventário, expiração e gateway mock substituível.
-- `service/TicketDeliveryService.java`, `service/EmailGateway.java`, `service/MockEmailGateway.java`: emissão idempotente e confirmação mock após commit; falhas são registradas sem retry automático.
+- `service/PurchaseOrderService.java`, `service/PaymentGateway.java`, `service/impl/PurchaseOrderServiceImpl.java`, `service/impl/MockPaymentGateway.java`: locks de inventário, expiração e gateway mock substituível.
+- `service/TicketDeliveryService.java`, `service/EmailGateway.java`, `service/impl/TicketDeliveryServiceImpl.java`, `service/impl/MockEmailGateway.java`: emissão idempotente e confirmação mock após commit; falhas são registradas sem retry automático.
 - `service/EntryValidationService.java`, `service/EventStaffService.java`: uso único concorrente, janela/status do evento, grants por evento, sync offline e correções ADMIN.
-- `service/TicketRefundService.java`, `service/RefundGateway.java`, `service/MockRefundGateway.java`: refund simulado por ticket sob lock, preço snapshot e cancelamento automático; não movimenta dinheiro.
+- `service/TicketRefundService.java`, `service/RefundGateway.java`, `service/impl/TicketRefundServiceImpl.java`, `service/impl/MockRefundGateway.java`: refund simulado por ticket sob lock, preço snapshot e cancelamento automático; não movimenta dinheiro.
 - `service/FinancialReportService.java`: agregados de vendas brutas/refunds por evento e plataforma, sem comissão/net payable.
 - Testes cobrem cadastro, convites, migrações, eventos, concorrência de pedidos, idempotency key, estados do mock, aprovação tardia e ofertas protegidas contra reservas pendentes.
 - A API aceita o campo legado `perfil` no cadastro por compatibilidade, mas o ignora; contas públicas recebem apenas USER.
-- Risco: `PageImpl` recebe tamanho da página como total; corrigir antes de depender dos metadados totais.
+- A listagem de usuários preserva os metadados de paginação devolvidos pelo Spring Data.
 - H2 em arquivo é uma escolha de persistência local/MVP, não uma configuração de produção multi-instância.
 - O primeiro ADMIN é provisionado manualmente no banco; a API não tem rota pública ou administrativa para criar ADMIN. O token de convite de produtor precisa ser entregue fora de banda; envio de e-mail não faz parte desta feature.
 - Pagamento/refund e e-mail reais ainda não existem; estados de refund são `SIMULATED`. Comissão, payout e política de ticket usado em cancelamento seguem pendentes.

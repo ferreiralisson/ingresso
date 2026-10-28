@@ -1,5 +1,5 @@
 # Componentes compartilhados
 
-`AuthLayout` é o único componente compartilhado encontrado. Fornece composição visual comum às telas de login e cadastro por meio de `ng-content`.
+Contém componentes visuais reutilizáveis entre funcionalidades, sem acesso HTTP ou regras de domínio. `layout/AuthLayout` compõe as páginas de login e cadastro por meio de `ng-content`.
 
-Depende somente de Angular e estilos globais definidos em `src/styles.css`/`src/app/app.css`; é consumido pelas páginas de autenticação. Não possui estado de usuário, lógica HTTP ou regras de negócio. A ilustração visual de ingresso não corresponde a uma funcionalidade de emissão ou compra.
+Os estilos globais ficam em `src/styles.css` e `src/app/app.css`. A ilustração de ingresso do layout não representa emissão ou compra de tickets.

@@ -1,12 +1,10 @@
 package org.example.ingresso.ingresso.service.impl;
 
-import org.example.ingresso.ingresso.dto.CreateUsuarioRequest;
+import org.example.ingresso.ingresso.service.dto.CoreServiceContracts.CreateUserCommand;
 import org.example.ingresso.ingresso.model.Usuario;
 import org.example.ingresso.ingresso.model.enums.UsuarioPerfil;
 import org.example.ingresso.ingresso.repository.UsuarioRepository;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -30,18 +28,11 @@ class UsuarioServiceImplTest {
     @InjectMocks
     private UsuarioServiceImpl usuarioService;
 
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = {"ADMIN", "USER", "PRODUCER", "STAFF"})
-    void publicRegistrationAlwaysCreatesBuyer(String requestedProfile) {
+    @Test
+    void publicRegistrationAlwaysCreatesBuyer() {
         when(passwordEncoder.encode("password")).thenReturn("encoded-password");
 
-        usuarioService.criar(new CreateUsuarioRequest(
-            "Ana",
-            "ana@example.com",
-            "password",
-            requestedProfile
-        ));
+        usuarioService.criar(new CreateUserCommand("Ana", "ana@example.com", "password"));
 
         ArgumentCaptor<Usuario> usuarioCaptor = ArgumentCaptor.forClass(Usuario.class);
         verify(usuarioRepository).save(usuarioCaptor.capture());

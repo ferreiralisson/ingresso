@@ -41,7 +41,9 @@ public class ProducerEventController {
         @AuthenticationPrincipal UserSS producer,
         @PageableDefault(size = 20, sort = "startsAt", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        return ResponseEntity.ok(eventService.listProducerEvents(producer, pageable));
+        return ResponseEntity.ok(EventHttpMapper.toSummaryPage(
+            eventService.listProducerEvents(producer.getId(), PageHttpMapper.toQuery(pageable))
+        ));
     }
 
     @GetMapping("/{eventId}")
@@ -49,7 +51,7 @@ public class ProducerEventController {
         @PathVariable Long eventId,
         @AuthenticationPrincipal UserSS producer
     ) {
-        return ResponseEntity.ok(eventService.getProducerEvent(eventId, producer));
+        return ResponseEntity.ok(EventHttpMapper.toResponse(eventService.getProducerEvent(eventId, producer.getId())));
     }
 
     @PostMapping
@@ -57,7 +59,9 @@ public class ProducerEventController {
         @RequestBody @Valid CreateEventRequest request,
         @AuthenticationPrincipal UserSS producer
     ) {
-        EventResponse response = eventService.create(request, producer);
+        EventResponse response = EventHttpMapper.toResponse(
+            eventService.create(EventHttpMapper.toCommand(request), producer.getId())
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -67,7 +71,9 @@ public class ProducerEventController {
         @RequestBody @Valid CreateEventRequest request,
         @AuthenticationPrincipal UserSS producer
     ) {
-        return ResponseEntity.ok(eventService.update(eventId, request, producer));
+        return ResponseEntity.ok(EventHttpMapper.toResponse(
+            eventService.update(eventId, EventHttpMapper.toCommand(request), producer.getId())
+        ));
     }
 
     @PatchMapping("/{eventId}/reativar")
@@ -75,7 +81,7 @@ public class ProducerEventController {
         @PathVariable Long eventId,
         @AuthenticationPrincipal UserSS producer
     ) {
-        return ResponseEntity.ok(eventService.reactivate(eventId, producer));
+        return ResponseEntity.ok(EventHttpMapper.toResponse(eventService.reactivate(eventId, producer.getId())));
     }
 
     @PatchMapping("/{eventId}/cancelar")
@@ -83,7 +89,7 @@ public class ProducerEventController {
         @PathVariable Long eventId,
         @AuthenticationPrincipal UserSS producer
     ) {
-        eventService.cancel(eventId, producer);
+        eventService.cancel(eventId, producer.getId());
         return ResponseEntity.noContent().build();
     }
 }

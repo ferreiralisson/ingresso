@@ -2,6 +2,15 @@
 
 Camada de aplicação entre controllers, persistência, codificação de senha e Spring Security.
 
+## Contratos e implementações
+
+- Interfaces públicas de serviços ficam neste pacote; implementações e adapters concretos ficam em `service.impl`.
+- Controllers dependem apenas das interfaces. Chamadas entre serviços também usam interfaces, sem dependência de uma implementação concreta.
+- Interfaces recebem IDs, comandos e consultas próprios da aplicação e retornam DTOs de resultado. Esses contratos ficam em `service.dto` e não expõem entidades JPA, tipos HTTP, `UserSS`, `Pageable` ou repositories.
+- Implementações podem usar entidades e repositories internamente. A conversão entre DTO HTTP e DTO de aplicação ocorre em adapters da camada `controller`.
+- Os gateways (`PaymentGateway`, `RefundGateway` e `EmailGateway`) são interfaces; mocks e adapters concretos ficam em `service.impl`.
+- `ServiceBoundaryTest` usa ArchUnit para impedir dependências de controllers em `service.impl`, dependências indevidas nos contratos e chamadas entre implementações concretas.
+
 ## Implementações e dependências
 
 - `UsuarioService` declara criação e listagem paginada; `impl.UsuarioServiceImpl` consulta/salva `Usuario`, aplica BCrypt e mapeia resultados para `UsuarioResponse`.
@@ -23,4 +32,4 @@ O cadastro público ignora o perfil recebido no request e sempre atribui `USER`;
 
 O catálogo contém eventos `PUBLISHED`; eventos suspensos não são expostos publicamente, enquanto cancelados mantêm o detalhe e deixam ofertas indisponíveis. Suspender/cancelar também encerra pedidos pendentes e libera reservas; pedidos pagos permanecem pagos.
 
-A paginação cria `PageImpl` usando `usuarios.size()` como total, em vez do total do `Page` devolvido por `findAll(pageable)`. Manter regras de negócio aqui e acrescentar testes de perfil, duplicidade e metadados de paginação.
+A listagem de usuários usa o total do `Page` devolvido pelo repositório ao montar o resultado de aplicação; os metadados de paginação refletem o total real, não apenas o conteúdo da página carregada.
